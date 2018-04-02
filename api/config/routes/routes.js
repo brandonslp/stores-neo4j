@@ -1,7 +1,11 @@
 const routes = require('express').Router();
 
-const movies = require('../../app/controllers/movies');
+const stores = require('../../app/controllers/stores');
 
-routes.get('/',movies.getAll);
+routes.get('/stores',stores.getAll);
+routes.get('/stores/:name',stores.getByName);
+routes.get('/stores/:name/jump/:jump',stores.getByJump);
+routes.get('/stores/start/:start/end/:end',stores.getShortestRoute);
+routes.get('/stores/start/:start/end/:end/jumps/:jumps',stores.getRoutes);
 
 module.exports = routes;
