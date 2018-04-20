@@ -16,7 +16,29 @@ let getSession = async (function() {
 									}
 								});
 
+exports.insert = async (function(model, nodes, relations) {
+	try{
+		console.log(`CREATE ${nodes} CREATE ${relations}`);
+		let result = await(await(getSession())
+												.run(`CREATE ${nodes} CREATE ${relations}`));
+		await(getSession()).close();
+		return result;
+	}catch(err){
+		throw err;
+	}
+});
+
 //key and primitive value
+exports.update = async (function(model, query, set) {
+	try{
+		let result = await(await(getSession())
+												.run(`MATCH(a:${model} ${jsonToRaw(query)}) set a+= ${jsonToRaw(set)} return a`));
+		await(getSession()).close();
+		return result;
+	}catch(err){
+		throw err;
+	}
+});
 
 exports.getAll = async (function(model) {
 	try{

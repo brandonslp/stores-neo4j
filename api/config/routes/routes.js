@@ -7,5 +7,7 @@ routes.get('/stores/:name',stores.getByName);
 routes.get('/stores/:name/jump/:jump',stores.getByJump);
 routes.get('/stores/start/:start/end/:end',stores.getShortestRoute);
 routes.get('/stores/start/:start/end/:end/jumps/:jumps',stores.getRoutes);
+routes.put('/stores/:name',stores.update);
+routes.post('/stores',stores.insert);
 
 module.exports = routes;
