@@ -6,7 +6,7 @@ WORKDIR /var/www/api
 
 COPY . /var/www/api
 
-RUN npm install -g nodemon
+RUN npm install && npm install -g nodemon
 
 CMD ["npm", "run-script", "startdev"]
 

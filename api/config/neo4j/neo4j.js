@@ -16,6 +16,8 @@ let getSession = async (function() {
 									}
 								});
 
+//key and primitive value
+
 exports.getAll = async (function(model) {
 	try{
 		let result = await(await(getSession())
@@ -27,10 +29,10 @@ exports.getAll = async (function(model) {
 	}
 });
 
-exports.getByParam = async (function(model, data) {
+exports.find = async (function(model, query) {
 	try{
 		let result = await(await(getSession())
-												.run(`MATCH(a:${model}) where a.${Object.keys(data)[0]}='${data[Object.keys(data)[0]]}'  return a`))
+												.run(`MATCH(a:${model} ${jsonToRaw(query)}) return a`))
 		await(getSession()).close();
 		return result;
 	}catch(err){
@@ -38,14 +40,14 @@ exports.getByParam = async (function(model, data) {
 	}
 });
 
-exports.getJumpRoutes = async (function(model, data, jump) {
+exports.getJumpRoutes = async (function(model, query, jump) {
 	try{
 		let relations = ''
 		for (var i = 0; i < jump; i++) {
 			relations+=`-[r${i}]-(b${i})`;
 		}
 		let result = await(await(getSession())
-												.run(`MATCH(a:${model})${relations} where a.${Object.keys(data)[0]}='${data[Object.keys(data)[0]]}'  return *`))
+												.run(`MATCH(a:${model} ${jsonToRaw(query)})${relations}  return *`))
 		await(getSession()).close();
 		return result;
 	}catch(err){
@@ -68,14 +70,26 @@ exports.getByShortestRoute = async (function(model, data) {
 exports.getRoutesRating = async (function(model, data, jumps) {
 	try{
 		let result = await(await(getSession())
-												.run(`MATCH p= (a:${model} {name: '${data.start}'})-[*0..${jumps}]-(b:${model} {name: '${data.end}'}) 
-															RETURN 
-															EXTRACT (n IN nodes(p)|n.name) as store,
-															(reduce(s=0, r in relationships(p) | s + r.rating)) as rating,
-															length(p) as saltos ORDER BY rating`))
+												.run(`MATCH p= (a:${model} {name: '${data.start}'})-[*0..${jumps}]-(b:${model} {name: '${data.end}'}) RETURN EXTRACT (n IN nodes(p)|n.name) as store,(reduce(s=0, r in relationships(p) | s + r.rating)) as rating,length(p) as saltos ORDER BY rating`))
 		await(getSession()).close();
 		return result;
 	}catch(err){
 		throw err;
 	}
 });
+
+function jsonToRaw(json) {
+	let raw = '{';
+	Object.keys(json).forEach((item, index)=>{
+		raw += Object.keys(json)[index] + ':';
+		let value = json[Object.keys(json)[index]];
+		if(typeof value == 'string')
+			raw += "'"+value+"'";
+		else
+			raw += value;
+		if(Object.keys(json)[index+1])
+			raw+=',';
+	});
+	raw += '}';
+	return raw;
+}

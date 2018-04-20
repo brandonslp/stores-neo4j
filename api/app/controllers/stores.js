@@ -14,7 +14,7 @@ exports.getAll = async (function(req, res) {
 
 exports.getByName = async (function(req, res) {
 	try{
-		let result = await(neo4j.getByParam('Store',{name: req.params.name}));
+		let result = await(neo4j.find('Store',{name: req.params.name}));
 		res.json(result);
 	}catch(err){
 		console.log(err);
